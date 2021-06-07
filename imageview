@@ -1,0 +1,57 @@
+#!/bin/bash
+
+IFS=$'\n'
+FILE_PATH="${1}"
+FILE_EXTENSION="${FILE_PATH##*.}"
+FILE_EXTENSION_LOWER="${FILE_EXTENSION,,*}"
+MIMETYPE="$(file --dereference --brief --mime-type -- "${FILE_PATH}" )"
+
+wid=$(xdotool getactivewindow)
+h="$(xwininfo -id $wid|awk '/Height:/ {print $2}')"
+w="$(xwininfo -id $wid|awk '/Width:/ {print $2}')"
+a=$((${lf_ratios//:/+}))
+cols=$(tput cols)
+lines=$(tput lines)
+hline=$((${h}/${lines}))
+wcol=$((${w}/${cols}))
+t=${lf_ratios##*:}
+w1=$((${w}*${t}/${a}-4*${wcol}))
+w0=$((${w}-${w1}-3*${wcol}))
+h1=$((${w}*${t}/${a}-4*${hline}))
+h0=$((2*${hline}))
+
+view(){
+			bg="/tmp/lf${id}background.jpg"
+			import -window ${wid} -silent ${bg}
+			convert $bg $1 \
+			-geometry "${w1}x${h1}+${w0}+${h0}" \
+			-compose Copy -composite \
+			 png: - |display  -window ${wid} -delay 0 -
+}
+
+case "${FILE_EXTENSION_LOWER}" in
+			bmp|jpg|jpeg|png|xpm) view "${FILE_PATH}";;
+
+			avi|mp4|wmv|dat|3gp|ogv|mkv|mpg|mpeg|vob|fl[icv]|m2v|mov \
+			|webm|ts|mts|m4v|r[am]|qt|divx)
+				CACHE=$(mktemp /tmp/thumbcache.XXXXX)
+				ffmpegthumbnailer -i "${FILE_PATH}" -o "${CACHE}" -s 0
+				view "${CACHE}"
+				rm -f ${CACHE};;
+
+			epub)
+					CACHE=$(mktemp /tmp/thumbcache.XXXXX)
+					gnome-epub-thumbnailer "${FILE_PATH}" "$CACHE"
+					view "${CACHE}"
+					rm -f ${CACHE};;
+		  pdf)
+				CACHE=$(mktemp /tmp/thumbcache.XXXXX)
+        pdftoppm -f 1 -png -singlefile "${FILE_PATH}" "${CACHE}"
+				view "${CACHE}.png"
+				rm -f "${CACHE}.png";;
+			djvu)
+					CACHE=$(mktemp /tmp/thumbcache.XXXXX)
+	        ddjvu -page=1 "${FILE_PATH}" "${CACHE}"
+					view "${CACHE}"
+					rm -f "${CACHE}";;
+			esac
