@@ -65,7 +65,10 @@ cmd locate ${{dir=$(locate ${1}|fzf)
 	     	lf -remote "send cd $dir"
 	    }}
 
-
+cmd grepvim ${{file=$(grep ${1} *|fzf)
+		file=${file%:*}
+		vim $file
+	     }}			
 cmd audio $ffmpeg -i $f  -q:a 0 -map a $f.mp3
 
 

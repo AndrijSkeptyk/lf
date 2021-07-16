@@ -25,8 +25,11 @@ view(){
 			import -window ${wid} -silent ${bg}
 			convert $bg $1 \
 			-geometry "${w1}x${h1}+${w0}+${h0}" \
-			-compose Copy -composite \
+			-compose copy -composite \
 			 png: - |display  -window ${wid} -delay 0 -
+
+
+
 }
 
 case "${FILE_EXTENSION_LOWER}" in
