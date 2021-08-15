@@ -71,7 +71,7 @@ cmd grepvim ${{file=$(grep ${1} *|fzf)
 	     }}			
 cmd audio $ffmpeg -i $f  -q:a 0 -map a $f.mp3
 
-
+cmd weather $curl -4 wttr.in/69089|less
 cmd lsport !netstat -tupln
 
 cmd toclip $cat $f|xclip -i
@@ -85,7 +85,7 @@ map ph ln
 map ps ln -s
 map pr ln -sr
 
-map <f-7> push $mkdir 
+
 
 map =d %du -sh $f 2>/dev/null
 map =f %df -h $(pwd)
@@ -126,11 +126,5 @@ map <pgup> &lf --remote "send $id page-up" ;lf --remote "send $id runimageview"
 map <pgdn> &lf --remote "send $id page-down" ;lf --remote "send $id runimageview"
 cmd on-cd &lf --remote "send $id runimageview"
 
-push j <down>
-push k <up>
-push gg <home>
-push G <end>
-push <c-f> <pgdn>
-push <c-b> <pgup>
+map <f-7> push $mkdir<space>  
 
- 
